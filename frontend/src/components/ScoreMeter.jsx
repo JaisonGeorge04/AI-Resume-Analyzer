@@ -4,7 +4,7 @@ export default function ScoreMeter({ score = 0 }) {
   const [animatedScore, setAnimatedScore] = useState(0);
   
   // Radius of the SVG circle
-  const radius = 60;
+  const radius = 80;
   const stroke = 8;
   const normalizedRadius = radius - stroke * 2;
   const circumference = normalizedRadius * 2 * Math.PI;
@@ -51,21 +51,21 @@ export default function ScoreMeter({ score = 0 }) {
 
   return (
     <div className="score-meter-container">
-      <svg className="gauge-svg">
+      <svg className="gauge-svg" viewBox={`0 0 ${radius * 2} ${radius * 2}`}>
         {/* Background track circle */}
         <circle
           className="gauge-bg"
           r={normalizedRadius}
-          cx={radius + stroke}
-          cy={radius + stroke}
+          cx={radius}
+          cy={radius}
         />
         {/* Animated fill circle */}
         <circle
           className="gauge-fill"
           stroke={currentColor}
           r={normalizedRadius}
-          cx={radius + stroke}
-          cy={radius + stroke}
+          cx={radius}
+          cy={radius}
           style={{
             strokeDasharray: `${circumference} ${circumference}`,
             strokeDashoffset: strokeDashoffset,
