@@ -819,4 +819,3 @@ def optimize_single_bullet(bullet_text: str) -> dict:
         if old_key:
             os.environ["GEMINI_API_KEY"] = old_key
         return res
-
