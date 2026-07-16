@@ -642,9 +642,13 @@ def analyze_resume(resume_text: str, job_description: str = "") -> dict:
     """
     Analyzes the resume using Google Gemini AI, with automatic fallback to a local mock analyzer.
     """
-    if not os.getenv("GEMINI_API_KEY"):
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
         print("Warning: GEMINI_API_KEY not found in environment. Using mock analyzer fallback.")
         return generate_mock_analysis(resume_text, job_description)
+
+    # Configure dynamically in case API key was set/changed after import
+    genai.configure(api_key=api_key)
 
     # Prompt Engineering
     system_prompt = (
@@ -743,8 +747,8 @@ def analyze_resume(resume_text: str, job_description: str = "") -> dict:
         return analysis_data
 
     except Exception as e:
-        print(f"Failed to use Gemini API due to error: {e}. Falling back to mock generator.")
-        return generate_mock_analysis(resume_text, job_description)
+        print(f"Failed to use Gemini API due to error: {e}.")
+        raise RuntimeError(f"Gemini API analysis failed: {str(e)}")
 
 
 def optimize_single_bullet(bullet_text: str) -> dict:
@@ -758,7 +762,8 @@ def optimize_single_bullet(bullet_text: str) -> dict:
             "explanation": "No text was provided."
         }
         
-    if not os.getenv("GEMINI_API_KEY"):
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
         # Local customized fallback rules for common bullet types
         text_lower = bullet_text.lower()
         
@@ -789,6 +794,9 @@ def optimize_single_bullet(bullet_text: str) -> dict:
             "explanation": explanation
         }
 
+    # Configure dynamically in case API key was set/changed after import
+    genai.configure(api_key=api_key)
+
     system_prompt = (
         "You are an expert resume editor and career coach.\n"
         "Take the user's resume bullet point and optimize it using the Google XYZ formula:\n"
@@ -811,11 +819,4 @@ def optimize_single_bullet(bullet_text: str) -> dict:
         return clean_json_response(response.text)
     except Exception as e:
         print(f"Failed to optimize single bullet using Gemini: {e}")
-        # Fall back to recursive mock optimizer call (by clearing the API key variable locally)
-        old_key = os.environ.get("GEMINI_API_KEY")
-        if old_key:
-            del os.environ["GEMINI_API_KEY"]
-        res = optimize_single_bullet(bullet_text)
-        if old_key:
-            os.environ["GEMINI_API_KEY"] = old_key
-        return res
+        raise RuntimeError(f"Gemini API optimization failed: {str(e)}")
