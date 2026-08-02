@@ -2,6 +2,10 @@
 
 > **Stop guessing why your resume gets rejected.** An AI-powered platform that scores your resume against real job descriptions, closes keyword gaps, and rewrites your bullet points using the Google XYZ formula — all in a sleek, glassmorphic dark-mode UI.
 
+### 🔗 Live Demo
+* **Frontend Web App**: [https://ai-resume-analyzer-ten-roan.vercel.app](https://ai-resume-analyzer-ten-roan.vercel.app)
+* **Backend API**: [https://ai-resume-analyzer-haf2.onrender.com](https://ai-resume-analyzer-haf2.onrender.com)
+
 ---
 
 ## ✨ Overview
