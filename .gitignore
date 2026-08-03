@@ -22,3 +22,8 @@ __pycache__/
 # OS specific files
 .DS_Store
 Thumbs.db
+
+# Test files
+test_*.py
+*.docx
+scratch_*.py
