@@ -9,3 +9,5 @@ export default defineConfig({
     host: true
   }
 })
+
+// End of Vite configuration
