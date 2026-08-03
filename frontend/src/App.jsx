@@ -20,6 +20,7 @@ import { analyzeResume } from './utils/api';
 export default function App() {
   const [file, setFile] = useState(null);
   const [jobDescription, setJobDescription] = useState('');
+  const [jobDescriptionFile, setJobDescriptionFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
@@ -45,15 +46,23 @@ export default function App() {
     setResult(null);
 
     try {
-      const data = await analyzeResume(file, jobDescription);
+      const data = await analyzeResume(file, jobDescription, jobDescriptionFile);
       setResult(data);
+
+      // Determine appropriate job title representation for history item
+      let historyJobTitle = 'General Diagnostics';
+      if (jobDescriptionFile) {
+        historyJobTitle = `JD File: ${jobDescriptionFile.name}`;
+      } else if (jobDescription) {
+        historyJobTitle = jobDescription.length > 40 ? jobDescription.substring(0, 40) + '...' : jobDescription;
+      }
 
       // Save run to history
       const newScan = {
         id: Date.now().toString(),
         timestamp: new Date().toISOString(),
         filename: file.name,
-        jobTitle: jobDescription ? (jobDescription.length > 40 ? jobDescription.substring(0, 40) + '...' : jobDescription) : 'General Diagnostics',
+        jobTitle: historyJobTitle,
         score: data.score,
         result: data
       };
@@ -73,6 +82,7 @@ export default function App() {
     setResult(item.result);
     setFile({ name: item.filename });
     setJobDescription(item.result.jobDescriptionRaw || '');
+    setJobDescriptionFile(null);
     setError(null);
   };
 
@@ -109,7 +119,12 @@ export default function App() {
 
             <form onSubmit={handleAnalyze}>
               <FileUpload file={file} setFile={setFile} />
-              <JobDescription value={jobDescription} onChange={setJobDescription} />
+              <JobDescription 
+                value={jobDescription} 
+                onChange={setJobDescription} 
+                fileValue={jobDescriptionFile}
+                onFileChange={setJobDescriptionFile}
+              />
               
               {error && (
                 <div 

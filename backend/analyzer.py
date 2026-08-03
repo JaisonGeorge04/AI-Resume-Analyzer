@@ -642,10 +642,76 @@ def _build_mock_skill_roadmap(gap_skills: list) -> list:
     return roadmap
 
 
+def validate_resume_text(text: str) -> tuple[bool, str]:
+    cleaned_text = text.strip()
+    if len(cleaned_text) < 150:
+        return False, "The uploaded resume document is too short to be a valid resume."
+        
+    categories_found = 0
+    lower_text = cleaned_text.lower()
+    
+    # Category A: Experience
+    if any(w in lower_text for w in ["experience", "work history", "employment", "professional history", "internship", "intern", "job history"]):
+        categories_found += 1
+        
+    # Category B: Education
+    if any(w in lower_text for w in ["education", "university", "college", "degree", "bachelor", "master", "b.tech", "b.e.", "m.tech", "academic", "gpa", "cgpa"]):
+        categories_found += 1
+        
+    # Category C: Skills
+    if any(w in lower_text for w in ["skills", "technologies", "tech stack", "proficiencies", "programming languages"]):
+        categories_found += 1
+        
+    # Category D: Projects / Contact / Summary
+    if any(w in lower_text for w in ["projects", "portfolio", "summary", "objective", "contact", "email", "phone"]):
+        categories_found += 1
+        
+    if categories_found < 2:
+        return False, "The uploaded document does not appear to be a valid resume. A valid resume should contain standard sections like Experience, Education, Skills, or Projects."
+        
+    return True, ""
+
+
+def validate_job_description_text(text: str) -> tuple[bool, str]:
+    cleaned_text = text.strip()
+    if not cleaned_text:
+        return True, ""
+        
+    if len(cleaned_text) < 40:
+        # If very short, check if it has typical developer / engineer skills/roles
+        lower_text = cleaned_text.lower()
+        if any(w in lower_text for w in ["developer", "engineer", "designer", "manager", "analyst", "skills", "react", "python", "javascript", "java", "sql", "aws", "docker"]):
+            return True, ""
+        return False, "The job description is too short or doesn't appear to be a valid job posting."
+        
+    lower_text = cleaned_text.lower()
+    # Look for common JD indicators
+    jd_indicators = [
+        "requirement", "qualification", "responsibilit", "duties", "role", "about the role",
+        "what you", "job description", "job summary", "apply", "who you are", "we are looking for",
+        "experience", "skills", "preferred", "minimum"
+    ]
+    
+    if not any(ind in lower_text for ind in jd_indicators):
+        return False, "The provided job description text does not appear to be a valid job posting."
+        
+    return True, ""
+
+
 def analyze_resume(resume_text: str, job_description: str = "") -> dict:
     """
     Analyzes the resume using Google Gemini AI, with automatic fallback to a local mock analyzer.
     """
+    # 1. Run heuristic validations first
+    resume_valid, resume_error = validate_resume_text(resume_text)
+    if not resume_valid:
+        return {"error": resume_error}
+        
+    if job_description:
+        jd_valid, jd_error = validate_job_description_text(job_description)
+        if not jd_valid:
+            return {"error": jd_error}
+
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         print("Warning: GEMINI_API_KEY not found in environment. Using mock analyzer fallback.")
@@ -657,8 +723,10 @@ def analyze_resume(resume_text: str, job_description: str = "") -> dict:
     # Prompt Engineering
     system_prompt = (
         "You are an expert recruiter and Applicant Tracking System (ATS) optimization expert.\n"
-        "Analyze the provided candidate resume text, and optionally compare it to the job description.\n"
-        "You MUST respond ONLY with a JSON object conforming to the following schema:\n"
+        "You must first validate the input documents:\n"
+        "1. RESUME VALIDATION: Check if the provided RESUME TEXT is actually a valid resume, CV, or professional profile. If it is a questionnaire, an allotment memo, a syllabus, random list of questions, or any unrelated document, you MUST reject it. If invalid, respond ONLY with this JSON: {\"error\": \"The uploaded document does not appear to be a valid resume. Please upload a proper resume document.\"}\n"
+        "2. JOB DESCRIPTION VALIDATION: If a JOB DESCRIPTION is provided, check if it is a real job posting, job description, or list of candidate requirements. If it is an allotment memo, a personal letter, a syllabus, or completely unrelated, you MUST reject it. If invalid, respond ONLY with this JSON: {\"error\": \"The provided job description text does not appear to be a valid job posting.\"}\n"
+        "If BOTH documents are valid (or if the resume is valid and no job description is provided), perform the ATS analysis and respond ONLY with a JSON object matching this schema:\n"
         "{\n"
         "  \"score\": 78, // integer overall score out of 100\n"
         "  \"summary\": \"Brief overall performance summary.\",\n"
@@ -741,6 +809,10 @@ def analyze_resume(resume_text: str, job_description: str = "") -> dict:
         
         response = model.generate_content(user_content)
         analysis_data = clean_json_response(response.text)
+        
+        # Check if LLM returned validation error
+        if "error" in analysis_data:
+            return analysis_data
         
         # Validate critical schema parts
         required_keys = ["score", "summary", "key_metrics", "keywords", "feedback", "bullet_optimizations", "career_recommendations", "section_breakdown", "skill_roadmap", "cover_letter"]

@@ -43,7 +43,8 @@ def health_check():
 @app.post("/api/analyze")
 async def analyze(
     file: UploadFile = File(...),
-    job_description: Optional[str] = Form(None)
+    job_description: Optional[str] = Form(None),
+    job_description_file: Optional[UploadFile] = File(None)
 ):
     """
     Endpoint to upload a resume (PDF/DOCX) and compare it against an optional job description.
@@ -72,11 +73,38 @@ async def analyze(
             detail=f"Error parsing resume: {str(e)}"
         )
 
+    # Parse job description if uploaded as a file
+    jd_text = ""
+    if job_description_file and job_description_file.filename:
+        try:
+            jd_bytes = await job_description_file.read()
+            ext = os.path.splitext(job_description_file.filename.lower())[1]
+            if ext == ".txt":
+                try:
+                    jd_text = jd_bytes.decode('utf-8')
+                except UnicodeDecodeError:
+                    jd_text = jd_bytes.decode('latin-1')
+            else:
+                jd_text = parse_resume(job_description_file.filename, jd_bytes)
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Failed to parse job description file: {str(e)}"
+            )
+    elif job_description:
+        jd_text = job_description
+
     # Analyze resume using Gemini/Mock
     try:
-        jd_text = job_description if job_description else ""
         analysis_result = analyze_resume(resume_text, jd_text)
+        if "error" in analysis_result:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=analysis_result["error"]
+            )
         return analysis_result
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

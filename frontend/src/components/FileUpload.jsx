@@ -18,6 +18,15 @@ export default function FileUpload({ file, setFile }) {
   const validateAndSetFile = (selectedFile) => {
     if (!selectedFile) return;
     const name = selectedFile.name.toLowerCase();
+    
+    // Check if filename contains job description keywords
+    const jdKeywords = ['jd', 'job', 'description', 'requirement', 'specification', 'posting'];
+    const isJdFile = jdKeywords.some(keyword => name.includes(keyword));
+    if (isJdFile) {
+      alert("It looks like you uploaded a Job Description in the Resume field. Please upload your Resume here instead.");
+      return;
+    }
+
     if (name.endsWith('.pdf') || name.endsWith('.docx') || name.endsWith('.doc')) {
       setFile(selectedFile);
     } else {

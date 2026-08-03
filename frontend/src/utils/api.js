@@ -13,10 +13,12 @@ export async function checkApiHealth() {
   }
 }
 
-export async function analyzeResume(file, jobDescription) {
+export async function analyzeResume(file, jobDescription, jobDescriptionFile) {
   const formData = new FormData();
   formData.append('file', file);
-  if (jobDescription) {
+  if (jobDescriptionFile) {
+    formData.append('job_description_file', jobDescriptionFile);
+  } else if (jobDescription) {
     formData.append('job_description', jobDescription);
   }
 
