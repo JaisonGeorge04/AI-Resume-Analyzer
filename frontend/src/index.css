@@ -377,6 +377,10 @@ body {
   to { transform: rotate(360deg); }
 }
 
+.spin {
+  animation: spin 1s linear infinite;
+}
+
 .loading-steps {
   display: flex;
   flex-direction: column;
@@ -1579,5 +1583,21 @@ body {
     border: none !important;
     padding: 0 !important;
   }
+  
+  .print-only-report {
+    display: block !important;
+  }
+  
+  .print-section {
+    page-break-inside: avoid;
+    margin-bottom: 30px;
+  }
+  
+  .print-section h2 {
+    color: #000;
+  }
 }
 
+.print-only-report {
+  display: none;
+}

@@ -12,10 +12,31 @@ export async function checkApiHealth() {
     return { status: 'offline', error: error.message };
   }
 }
+export async function scrapeJobDescription(url) {
+  const response = await fetch(`${API_BASE_URL}/scrape-jd`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ url }),
+  });
 
-export async function analyzeResume(file, jobDescription, jobDescriptionFile) {
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.detail || `Scraping failed (${response.status})`);
+  }
+
+  return await response.json();
+}
+
+export async function analyzeResume(file, resumeText, jobDescription, jobDescriptionFile) {
   const formData = new FormData();
-  formData.append('file', file);
+  if (file) {
+    formData.append('file', file);
+  }
+  if (resumeText) {
+    formData.append('resume_text', resumeText);
+  }
   if (jobDescriptionFile) {
     formData.append('job_description_file', jobDescriptionFile);
   } else if (jobDescription) {

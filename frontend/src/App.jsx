@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Cpu, Send, ClipboardCopy, Award, CheckCircle2, ChevronRight, TrendingUp, AlertTriangle, Printer, Trash2, History } from 'lucide-react';
+import { Cpu, Send, ClipboardCopy, Award, CheckCircle2, ChevronRight, TrendingUp, AlertTriangle, Printer, Trash2, History, FileText } from 'lucide-react';
 
 // Import components
 import Header from './components/Header';
@@ -19,6 +19,8 @@ import { analyzeResume } from './utils/api';
 
 export default function App() {
   const [file, setFile] = useState(null);
+  const [inputMode, setInputMode] = useState('upload'); // 'upload' or 'text'
+  const [resumeText, setResumeText] = useState('');
   const [jobDescription, setJobDescription] = useState('');
   const [jobDescriptionFile, setJobDescriptionFile] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -39,14 +41,20 @@ export default function App() {
 
   const handleAnalyze = async (e) => {
     e.preventDefault();
-    if (!file) return;
+    if (inputMode === 'upload' && !file) return;
+    if (inputMode === 'text' && !resumeText.trim()) return;
 
     setLoading(true);
     setError(null);
     setResult(null);
 
     try {
-      const data = await analyzeResume(file, jobDescription, jobDescriptionFile);
+      const data = await analyzeResume(
+        inputMode === 'upload' ? file : null,
+        inputMode === 'text' ? resumeText : null,
+        jobDescription,
+        jobDescriptionFile
+      );
       setResult(data);
 
       // Determine appropriate job title representation for history item
@@ -61,7 +69,7 @@ export default function App() {
       const newScan = {
         id: Date.now().toString(),
         timestamp: new Date().toISOString(),
-        filename: file.name,
+        filename: inputMode === 'upload' ? file.name : 'Manual Text Input',
         jobTitle: historyJobTitle,
         score: data.score,
         result: data
@@ -80,7 +88,15 @@ export default function App() {
 
   const loadHistoryItem = (item) => {
     setResult(item.result);
-    setFile({ name: item.filename });
+    if (item.filename === 'Manual Text Input') {
+      setInputMode('text');
+      setResumeText(item.result.resumeTextRaw || 'Text from previous analysis'); // We don't save raw text in result currently, but it will fallback.
+      setFile(null);
+    } else {
+      setInputMode('upload');
+      setFile({ name: item.filename });
+      setResumeText('');
+    }
     setJobDescription(item.result.jobDescriptionRaw || '');
     setJobDescriptionFile(null);
     setError(null);
@@ -118,7 +134,42 @@ export default function App() {
             </p>
 
             <form onSubmit={handleAnalyze}>
-              <FileUpload file={file} setFile={setFile} />
+              <div className="tabs-container no-print" style={{ marginBottom: '16px', display: 'flex', background: 'rgba(0,0,0,0.2)', padding: '4px', borderRadius: 'var(--radius-sm)' }}>
+                <button 
+                  type="button" 
+                  className={`tab-btn ${inputMode === 'upload' ? 'active' : ''}`}
+                  onClick={() => setInputMode('upload')}
+                  style={{ flex: 1 }}
+                >
+                  <FileText size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }} />
+                  Upload Document
+                </button>
+                <button 
+                  type="button" 
+                  className={`tab-btn ${inputMode === 'text' ? 'active' : ''}`}
+                  onClick={() => setInputMode('text')}
+                  style={{ flex: 1 }}
+                >
+                  <ClipboardCopy size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }} />
+                  Write / Paste Text
+                </button>
+              </div>
+
+              {inputMode === 'upload' ? (
+                <FileUpload file={file} setFile={setFile} />
+              ) : (
+                <div className="form-group">
+                  <label className="form-label">Resume Content</label>
+                  <textarea 
+                    className="textarea-field" 
+                    style={{ minHeight: '160px', resize: 'vertical' }}
+                    placeholder="Paste your resume text here..."
+                    value={resumeText}
+                    onChange={(e) => setResumeText(e.target.value)}
+                  />
+                </div>
+              )}
+
               <JobDescription 
                 value={jobDescription} 
                 onChange={setJobDescription} 
@@ -149,7 +200,7 @@ export default function App() {
               <button
                 type="submit"
                 className="btn-primary"
-                disabled={!file || loading}
+                disabled={(inputMode === 'upload' ? !file : !resumeText.trim()) || loading}
               >
                 <Send size={18} />
                 <span>{loading ? 'Analyzing...' : 'Run Diagnostics'}</span>
@@ -304,8 +355,8 @@ export default function App() {
               </div>
 
               {/* Tabs Section */}
-              <div className="glass-panel" style={{ padding: '24px' }}>
-                <div className="tabs-container no-print">
+              <div className="glass-panel no-print" style={{ padding: '24px' }}>
+                <div className="tabs-container">
                   <button
                     className={`tab-btn ${activeTab === 'keywords' ? 'active' : ''}`}
                     onClick={() => setActiveTab('keywords')}
@@ -385,6 +436,46 @@ export default function App() {
                         </div>
                       ))}
                     </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Print Only Full Report */}
+              <div className="print-only-report">
+                <div className="print-section">
+                  <h2 style={{ marginBottom: '16px', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>1. Keyword Alignment</h2>
+                  <KeywordGap keywords={result.keywords} />
+                </div>
+                
+                <div className="print-section" style={{ marginTop: '24px' }}>
+                  <h2 style={{ marginBottom: '16px', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>2. Section Analysis</h2>
+                  <SectionBreakdown sections={result.section_breakdown} />
+                </div>
+
+                <div className="print-section" style={{ marginTop: '24px' }}>
+                  <h2 style={{ marginBottom: '16px', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>3. Formatting & Details</h2>
+                  <FeedbackSection feedback={result.feedback} />
+                </div>
+
+                <div className="print-section" style={{ marginTop: '24px' }}>
+                  <h2 style={{ marginBottom: '16px', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>4. Skill Roadmap</h2>
+                  <SkillRoadmap skills={result.skill_roadmap} />
+                </div>
+
+                <div className="print-section" style={{ marginTop: '24px' }}>
+                  <h2 style={{ marginBottom: '16px', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>5. Cover Letter</h2>
+                  <CoverLetterView coverLetter={result.cover_letter} />
+                </div>
+
+                <div className="print-section" style={{ marginTop: '24px' }}>
+                  <h2 style={{ marginBottom: '16px', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>6. Next Steps</h2>
+                  <div className="rec-list" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {result.career_recommendations && result.career_recommendations.map((rec, i) => (
+                      <div key={i} className="rec-item" style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                        <CheckCircle2 size={18} style={{ color: 'var(--color-primary)', marginTop: '2px', flexShrink: 0 }} />
+                        <span>{rec}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>

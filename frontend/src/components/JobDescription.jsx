@@ -1,9 +1,29 @@
 import React, { useState, useRef } from 'react';
-import { UploadCloud, FileText, X } from 'lucide-react';
+import { UploadCloud, FileText, X, Link as LinkIcon, Loader } from 'lucide-react';
+import { scrapeJobDescription } from '../utils/api';
 
 export default function JobDescription({ value, onChange, fileValue, onFileChange }) {
-  const [mode, setMode] = useState('text'); // 'text' or 'file'
+  const [mode, setMode] = useState('text'); // 'text', 'file', or 'url'
+  const [url, setUrl] = useState('');
+  const [isScraping, setIsScraping] = useState(false);
   const fileInputRef = useRef(null);
+
+  const handleScrape = async () => {
+    if (!url) return;
+    setIsScraping(true);
+    try {
+      const data = await scrapeJobDescription(url);
+      if (data.job_description) {
+        onChange(data.job_description);
+        setMode('text'); // Switch to text mode to show the result
+        setUrl(''); // Clear url
+      }
+    } catch (err) {
+      alert(err.message || "Failed to scrape job description. Please check the URL and try again.");
+    } finally {
+      setIsScraping(false);
+    }
+  };
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -81,10 +101,68 @@ export default function JobDescription({ value, onChange, fileValue, onFileChang
           >
             Upload File
           </button>
+          <button
+            type="button"
+            className={`jd-toggle-btn ${mode === 'url' ? 'active' : ''}`}
+            onClick={() => {
+              setMode('url');
+              onFileChange(null);
+            }}
+            style={{
+              padding: '4px 8px',
+              fontSize: '11px',
+              fontWeight: 600,
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              background: mode === 'url' ? 'var(--color-primary)' : 'transparent',
+              color: '#fff',
+              transition: 'var(--transition-fast)'
+            }}
+          >
+            Scrape URL
+          </button>
         </div>
       </div>
 
-      {mode === 'text' ? (
+      {mode === 'url' ? (
+        <div className="jd-url-zone" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <input
+              type="url"
+              className="textarea-field"
+              placeholder="https://www.linkedin.com/jobs/view/..."
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              style={{ minHeight: '40px', padding: '10px 14px', flex: 1 }}
+            />
+            <button
+              type="button"
+              onClick={handleScrape}
+              disabled={!url || isScraping}
+              style={{
+                padding: '0 16px',
+                background: 'var(--color-primary)',
+                color: 'white',
+                border: 'none',
+                borderRadius: 'var(--radius-sm)',
+                fontWeight: 600,
+                cursor: (!url || isScraping) ? 'not-allowed' : 'pointer',
+                opacity: (!url || isScraping) ? 0.7 : 1,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+            >
+              {isScraping ? <Loader size={16} className="spin" /> : <LinkIcon size={16} />}
+              {isScraping ? 'Scraping...' : 'Fetch'}
+            </button>
+          </div>
+          <p style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+            Paste a link to a job posting. We'll extract the job description and switch back to text mode.
+          </p>
+        </div>
+      ) : mode === 'text' ? (
         <textarea
           id="job-description-input"
           className="textarea-field"
