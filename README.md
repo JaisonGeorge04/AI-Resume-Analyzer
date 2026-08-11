@@ -6,7 +6,7 @@
 * **Frontend Web App**: [https://ai-resume-analyzer-ten-roan.vercel.app](https://ai-resume-analyzer-ten-roan.vercel.app)
 * **Backend API**: [https://ai-resume-analyzer-haf2.onrender.com](https://ai-resume-analyzer-haf2.onrender.com)
   
-----
+-----
 
 ## ✨ Overview
 
