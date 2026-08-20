@@ -10,7 +10,7 @@
     
 ## ✨ Overview
 
-**AI Resume Analyzer & Optimizer** is a modern, high-performance full-stack web application that helps job seekers understand exactly how their resume stacks up against a target job description. Powered by **Google Gemini AI**, it calculates an ATS (Applicant Tracking System) match score, surfaces missing keywords, breaks down feedback section-by-section, and offers a concrete roadmap to close skill gaps.
+**AI Resume Analyzer & Optimizer** is a modern, high-performance full-stack web application that helps job seekers understand exactly how their resume stacks up against a target job description. Powered by **Google Gemini AI**, it calculates an ATS (Applicant Tracking System) match score, surfaces missing keywords, breaks down feedback section by section, and offers a concrete roadmap to close skill gaps.
 
 It also includes a standalone **Bullet Point Optimizer** — an interactive playground that rewrites weak resume bullets into high-impact statements using the **Google XYZ formula**:
 
