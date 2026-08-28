@@ -1,4 +1,4 @@
-# 🚀 AI Resume Analyzer & Optimizer 
+# 🚀 AI Resume Analyzer & Optimizer  
 
 > **Stop guessing why your resume gets rejected.** An AI-powered platform that scores your resume against real job descriptions, closes keyword gaps, and rewrites your bullet points using the Google XYZ formula — all in a sleek, glassmorphic dark-mode UI. **
 
