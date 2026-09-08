@@ -5,7 +5,7 @@ from fastapi import FastAPI, File, UploadFile, Form, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
-
+ 
 # Import local helper modules
 from parser import parse_resume
 from analyzer import analyze_resume, optimize_single_bullet
