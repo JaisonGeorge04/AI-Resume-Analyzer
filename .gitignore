@@ -4,7 +4,7 @@ dist/
 
 # Python environment and cache
 venv/
-.venv/
+.venv/ 
 __pycache__/ 
 *.pyc
 *.pyo
