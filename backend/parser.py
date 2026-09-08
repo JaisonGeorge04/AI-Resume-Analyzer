@@ -3,7 +3,7 @@ import os
 # pyrefly: ignore [missing-import]
 import pdfplumber
 from pypdf import PdfReader
-from docx import Document
+from docx import Document 
 
 def extract_text_from_pdf(file_bytes: bytes) -> str:
     """
