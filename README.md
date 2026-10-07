@@ -87,8 +87,6 @@ No API key? No problem — the app ships with a **Mock Fallback Mode** that uses
             └── LoadingState.jsx      # Animated loading milestones
 ```
 
----
-
 ## ⚡ Quick Start (Local Setup)
 
 ### Prerequisites
