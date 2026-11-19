@@ -21,7 +21,7 @@ No API key? No problem — the app ships with a **Mock Fallback Mode** that uses
 ---
 
 ## 🎯 Key Features
-
+ 
 | Feature | Description |
 |---|---|
 | 📄 **Multi-Format Parser** | Upload resumes as **PDF** or **DOCX**. Extracts paragraphs, bullet points, and tables with a dual-engine PDF pipeline (`pdfplumber` → falls back to `pypdf`). |
