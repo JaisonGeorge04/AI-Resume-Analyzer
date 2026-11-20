@@ -61,7 +61,7 @@ No API key? No problem — the app ships with a **Mock Fallback Mode** that uses
 │   ├── main.py             # FastAPI entry point, CORS, routes
 │   │                       # /api/health
 │   │                       # /api/analyze
-│   │                       #   /api/optimize-bullet
+│   │                       # /api/optimize-bullet
 │   ├── analyzer.py         # Gemini API calls + mock analyzer heuristics
 │   ├── parser.py           # PDF/DOCX text extraction logic
 │   └── requirements.txt    # Python dependencies
