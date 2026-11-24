@@ -25,7 +25,7 @@ No API key? No problem — the app ships with a **Mock Fallback Mode** that uses
 | Feature | Description |
 |---|---|
 | 📄 **Multi-Format Parser** | Upload resumes as **PDF** or **DOCX**. Extracts paragraphs, bullet points, and tables with a dual-engine PDF pipeline (`pdfplumber` → falls back to `pypdf`). |
-| 🎯 **ATS Match Scoring** | AI-driven percentage match between your resume and a job description, visualized with an animated circular gauge. |
+| 🎯 **ATS Match Scoring** | Calculates a resume-to-job-description match score using Gemini AI or local heuristic-based analysis. |
 | 🔑 **Keyword Gap Analysis** | Clearly separates **matching**, **missing**, and **recommended** keywords/skills as an easy-to-scan pill layout. |
 | 🧩 **Section-by-Section Breakdown** | Individual feedback for Contact, Summary, Experience, Education, and Skills sections. |
 | 🧪 **Mock Fallback Mode** | Provides resume analysis using local heuristic-based logic when no GEMINI_API_KEY is configured, without requiring a Gemini API key. |
