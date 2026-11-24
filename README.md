@@ -28,7 +28,7 @@ No API key? No problem — the app ships with a **Mock Fallback Mode** that uses
 | 🎯 **ATS Match Scoring** | AI-driven percentage match between your resume and a job description, visualized with an animated circular gauge. |
 | 🔑 **Keyword Gap Analysis** | Clearly separates **matching**, **missing**, and **recommended** keywords/skills as an easy-to-scan pill layout. |
 | 🧩 **Section-by-Section Breakdown** | Individual feedback for Contact, Summary, Experience, Education, and Skills sections. |
-| 🧪 **Mock Fallback Mode** | Fully offline-capable — generates realistic mock analysis when no `GEMINI_API_KEY` is set. |
+| 🧪 **Mock Fallback Mode** | Provides resume analysis using local heuristic-based logic when no GEMINI_API_KEY is configured, without requiring a Gemini API key. |
 | ✍️ **XYZ Bullet Optimizer** | Paste a bullet point and get an AI-optimized version that follows the Google XYZ formula. |
 | 🗺️ **Skill Gap Roadmap** | Actionable certifications, learning resources, and next steps for missing skills. |
 | 🎨 **Premium Dark UI** | Custom gradients, glassmorphism, and micro-animations — built with hand-tuned vanilla CSS. |
