@@ -207,7 +207,7 @@ Visit `http://localhost:5173` in your browser, upload a resume, paste a job desc
 |---|---|---|
 | `GET` | `/api/health` | Health check for the backend service. |
 | `POST`| `/api/analyze` | Accepts a resume file + job description, returns ATS score, keyword gaps, and section feedback. |
-| `POST` | `/api/optimize-bullet` | Accepts a raw bullet point, returns an AI-optimized version using the XYZ formula. |
+| `POST`| `/api/optimize-bullet` | Accepts a raw bullet point, returns an AI-optimized version using the XYZ formula. |
 
 ---
 
